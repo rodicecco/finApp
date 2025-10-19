@@ -8,6 +8,7 @@ import psycopg2 as sql
 import asyncpg
 import asyncio
 import nest_asyncio
+import secret
 
 nest_asyncio.apply()
 
@@ -61,11 +62,12 @@ class Database:
                                 'bool': 'BOOLEAN',
                                 'datetime64[ns]': 'TIMESTAMP'}
         
-        self.host = '34.60.50.195'
-        self.database = 'datadb'
-        self.user = 'postgres'
-        self.password = 'Vic24278175.'
-        self.port = '5432'
+        self.host = secret.database['GOOG']['host']
+        self.database = secret.database['GOOG']['database']
+        self.user = secret.database['GOOG']['user']
+        self.password = secret.database['GOOG']['password']
+        self.port = secret.database['GOOG']['port']
+        
         self.conn_string = f'postgresql://{self.user}:{self.password}@{self.host}/{self.database}'
         self.alt_conn_string = f'host={self.host} dbname={self.database} user={self.user} password={self.password} port={self.port}'
         self.table_name = table_name

@@ -518,7 +518,7 @@ class EarningsHist(Database):
         self.update_set = update_set
 
         self.ct = 0
-        self.limit = 50
+        self.limit = 70
 
         Database.__init__(self, self.table_name, self.constraints)
 
