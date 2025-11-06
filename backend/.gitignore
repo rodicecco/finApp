@@ -10,3 +10,6 @@ env/
 # IDEs
 .vscode/
 .idea/
+
+# Notebooks
+*.ipynb

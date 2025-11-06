@@ -1,4 +1,5 @@
-key_chain = {'EOD': ' 62cb6d4b152f86.30923161'}
+key_chain = {'EOD': ' 62cb6d4b152f86.30923161', 
+             'FRED': '87ffc2a749498847e26809a500f9036a'}
 
 
 

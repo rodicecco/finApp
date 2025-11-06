@@ -1,6 +1,6 @@
 import pandas as pd
-import source
-from admin import Database
+from . import source
+from .admin import Database
 import re
 from datetime import date, datetime, timedelta
 import time
@@ -186,18 +186,21 @@ class Historical(Database):
     #Function that verifies the last date of update in the
     #specified set of symbols
     def update_date(self, symbols:list):
-        
-        query = f'''WITH dates AS (SELECT MAX(date) AS max_date
-                                    FROM {self.table_name}
-                                    GROUP BY symbol)
-                                    SELECT MIN(max_date)
-                                    FROM dates;'''
-        with self.connection() as conn:
-            cur = conn.cursor()
-            cur.execute(query)
-            resp = cur.fetchone()
+        try:
+            query = f'''WITH dates AS (SELECT MAX(date) AS max_date
+                                        FROM {self.table_name}
+                                        GROUP BY symbol)
+                                        SELECT MIN(max_date)
+                                        FROM dates;'''
+            with self.connection() as conn:
+                cur = conn.cursor()
+                cur.execute(query)
+                resp = cur.fetchone()
 
-        return resp[0]
+            return resp[0]
+        except:
+            #If table does not exist, return a very old date
+            return '1900-02-01'
 
     def prep_raw(self, raw_data):
         diclis = []
@@ -445,20 +448,37 @@ class Tickers(Database):
 
         return True
 
-#Class to organize and post data related to the GIC Sectors of the
+
+#Class to organize and post data related to the GIC Sectors and general data of the
 #tickers included in the priority set
-class Sectors(Database):
+class General(Database):
 
     def __init__(self, update_set:object = priority_update_set):
         self.source = source.EODData()
         self.endpoint = self.source.general_equity
-        self.table_name = 'gic_sectors'
+        self.table_name = 'general'
         self.constraints = ['Code']
         self.update_set = update_set
 
         self.ct = 0
         self.limit = 100
-        self.cols_ = ['Code', 'GicSector', 'GicGroup', 'GicIndustry', 'GicSubIndustry']
+        self.cols_ = ['Code', 
+                      'Type', 
+                      'Name', 
+                      'Exchange', 
+                      'CurrencyCode', 
+                      'CountryISO', 
+                      'ISIN', 
+                      'FiscalYearEnd', 
+                      'PrimaryTicker', 
+                      'CUSIP', 
+                      'IPODate', 
+                      'GicSector', 
+                      'GicGroup', 
+                      'GicIndustry', 
+                      'GicSubIndustry', 
+                      'IsDelisted', 
+                      'Description']
 
         Database.__init__(self, self.table_name, self.constraints)
 
@@ -504,7 +524,9 @@ class Sectors(Database):
 
             ct+=steps
 
-        return True   
+        return True  
+
+
 
 #Class to organize and post earnings historical data on the
 #tickers in the priority set

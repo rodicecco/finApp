@@ -1,5 +1,5 @@
 import pandas as pd
-import source
+from . import source
 from sqlalchemy import create_engine, MetaData, Table, Column, text
 from sqlalchemy import Integer, String, Float, Boolean, DateTime, UniqueConstraint
 from sqlalchemy.dialects.postgresql import insert
@@ -8,7 +8,7 @@ import psycopg2 as sql
 import asyncpg
 import asyncio
 import nest_asyncio
-import secret
+from . import secret
 
 nest_asyncio.apply()
 

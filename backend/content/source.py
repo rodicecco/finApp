@@ -1,6 +1,6 @@
 
 import requests
-import secret
+from . import secret
 import aiohttp
 import asyncio
 import nest_asyncio
@@ -14,7 +14,7 @@ class BaseRequests:
 
     #Function to build dictionary with all attributes of the payload
     def build_params(self, main_payload, adj=False,**kwargs):
-        payload = main_payload
+        payload = main_payload.copy()
         if adj == False:
             for key, value in kwargs.items():
                 payload[key] = value
@@ -245,3 +245,113 @@ class EODData(BaseRequests):
 
         
     
+#Fred Data API wrapper
+class FREDData(BaseRequests):
+
+    def __init__(self):
+        self.api_key = secret.key_chain['FRED']
+        self.main_url = 'https://api.stlouisfed.org/fred'
+        self.main_params = {
+                    'api_key': self.api_key, 
+                    'file_type': 'json'
+                            }
+    
+        BaseRequests.__init__(self)
+
+    #Pair of functions to request data from the FRED endpoint
+    #Function that builds dictionary of parameters for the api requests to the EOD endpoint
+
+    #Get all releases of economic data.
+    def releases_params(self, **kwargs):
+
+        main_url = self.main_url
+        endpoint = '/releases'
+
+        dic = {}        
+        payload = self.build_params(self.main_params, **kwargs)
+        url = main_url + endpoint 
+        dic['releases'] = (url, payload)
+
+        return dic
+    
+    #Function to make calls to the EOD endpoint
+    def releases(self, asyn=True ,**kwargs):
+        params = self.releases_params(**kwargs)
+        responses = self.select_request(params, asyn=asyn)
+        return responses
+    
+    #Get all releases of economic data.
+    def series_params(self, release_ids:list, **kwargs):
+
+        main_url = self.main_url
+        endpoint = '/release/series'
+
+        dic = {}
+        for rid in release_ids:        
+            payload = self.build_params(self.main_params, release_id=rid, **kwargs)
+            url = main_url + endpoint 
+            dic[rid] = (url, payload)
+
+        return dic
+    
+    #Function to make calls to the EOD endpoint
+    def series(self, release_ids:list, asyn=True ,**kwargs):
+        params = self.series_params(release_ids, **kwargs)
+        responses = self.select_request(params, asyn=asyn)
+        return responses
+    
+    #Get all releases of economic data.
+    def observ_params(self, series_ids:list, **kwargs):
+
+        main_url = self.main_url
+        endpoint = '/series/observations'
+
+        dic = {}
+        for rid in series_ids:        
+            payload = self.build_params(self.main_params, series_id=rid, **kwargs)
+            url = main_url + endpoint 
+            dic[rid] = (url, payload)
+
+        return dic
+    
+    #Function to make calls to the EOD endpoint
+    def observ(self, series_ids:list, asyn=True ,**kwargs):
+        params = self.observ_params(series_ids, **kwargs)
+        responses = self.select_request(params, asyn=asyn)
+        return responses
+    
+    def series_meta_params(self, series_ids:list, **kwargs):
+
+        main_url = self.main_url
+        endpoint = '/series'
+
+        dic = {}
+        for sid in series_ids:        
+            payload = self.build_params(self.main_params, series_id=sid, **kwargs)
+            url = main_url + endpoint 
+            dic[sid] = (url, payload)
+
+        return dic
+    
+    def series_meta(self, series_ids:list, asyn=True ,**kwargs):
+        params = self.series_meta_params(series_ids, **kwargs)
+        responses = self.select_request(params, asyn=asyn)
+        return responses
+    
+    def release_series_params(self, series_ids:list, **kwargs):
+
+        main_url = self.main_url
+        endpoint = '/series/release'
+
+        dic = {}
+        for sid in series_ids:        
+            payload = self.build_params(self.main_params, series_id=sid, **kwargs)
+            url = main_url + endpoint 
+            dic[sid] = (url, payload)
+
+        return dic
+
+    def release_series(self, series_ids:list, asyn=True ,**kwargs):
+        params = self.release_series_params(series_ids, **kwargs)
+        responses = self.select_request(params, asyn=asyn)
+        return responses
